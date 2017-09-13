@@ -12,12 +12,11 @@
 #	store current theme into config directory
 
 case "$1" in
--h|--help)
+-h|--help|'')
 	echo "Usage: `basename $0` [-h|-l] [theme]"
 	echo "Set mintty theme in current mintty window, or list available themes."
-	echo "A theme is a colour scheme to configure the 8 ANSI colours, "
-	echo "their bright versions, and optionally the foreground/background and "
-	echo "cursor colours or other colour settings."
+	echo "A theme is a colour scheme to configure the 8 ANSI colours, their "
+	echo "bright versions, and optionally the foreground/background/cursor colours."
 	echo
 	echo "Arguments:"
 	echo "  -l, --list    list available themes"
@@ -32,7 +31,7 @@ case "$1" in
 	;;
 -l)	for confdir in ~/.mintty ~/.config/mintty "$APPDATA"/mintty /usr/share/mintty
 	do	if [ -d "$confdir/themes" -a -x "$confdir/themes"  -a -r "$confdir/themes" ]
-		then	echo "themes in $confdir:"
+		then	echo "themes in '$confdir':"
 			(cd "$confdir/themes"; ls *[!~])
 		fi
 	done;;
