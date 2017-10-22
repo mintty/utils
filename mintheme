@@ -8,7 +8,7 @@
 # possible future features:
 #	set a theme from a file
 #	set a theme from a URL
-#	load them from a URL into config directory
+#	load theme from a URL into config directory
 #	store current theme into config directory
 
 case "$1" in
@@ -61,10 +61,10 @@ case "$1" in
 			    -e 't ok' -e d -e ': ok' -e 's/[ 	]//g' \
 			    -e "s/^/]/" -e "s/$//" "$confdir/themes/$1" |
 			tr -d '\012'
-			#]4;A;colour	ANSI colour A=0..15
-			#]10;colour	foreground colour
-			#]11;colour	background colour
-			#]12;colour	cursor colour
+			#]4;A;colour	set ANSI colour A=0..15
+			#]10;colour	set foreground colour
+			#]11;colour	set background colour
+			#]12;colour	set cursor colour
 			# unused:
 			#]104;A	reset ANSI colour A=0..15
 			#]104		reset colour palette
