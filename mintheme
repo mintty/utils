@@ -21,11 +21,12 @@ help() {
 	echo "bright versions, and optionally the foreground/background/cursor colours."
 	echo
 	echo "Arguments:"
-	echo "  -f, --file    set theme from given themefile"
-	echo "  -q, --query   query current colour configuration as theme"
-	echo "  -d, --decimal query output"
-	echo "  -l, --list    list available themes"
-	echo "  -h, --help    show this"
+	echo "  -f, --file      set theme from given themefile"
+	echo "  -s, --saveconf  like -f, and set theme in config file"
+	echo "  -q, --query     query current colour configuration as theme"
+	echo "  -d, --decimal   query output"
+	echo "  -l, --list      list available themes"
+	echo "  -h, --help      show this"
 	echo
 	echo "The following directories are considered for locating configured themes:"
 	echo '  ~/.mintty'
@@ -90,11 +91,36 @@ query() {
 	fi
 }
 
+conftheme() {
+	themefile=`cygpath -wa "$1"`
+	for conffile in ~/.minttyrc ~/.config/mintty/config "$APPDATA/mintty/config" /etc/minttyrc
+	do	if [ -w "$conffile" ]
+		then
+			newconf=/tmp/minttyrc.$$
+			# create new config file with modified entry
+			sed -n -e "/^ThemeFile[	 ]*=/ q" -e p "$conffile" > "$newconf"
+			echo "ThemeFile=$themefile" >> "$newconf"
+			sed -e "1,/^ThemeFile[	 ]*=/ d" "$conffile" >> "$newconf"
+			# copy new config file back
+			/bin/cp "$newconf" "$conffile"
+			/bin/rm "$newconf"
+			# feedback
+			echo "saved theme '$themefile'"
+			echo "in config file '$conffile'"
+			return
+		fi
+	done
+}
+
 decimal=false
+saveconf=false
 case "$1" in
 -d|--decimal)
 	decimal=true
 	shift;;
+-s|--saveconf)
+	saveconf=true
+	;;
 esac
 
 case "$1" in
@@ -108,11 +134,15 @@ case "$1" in
 			(cd "$confdir/themes"; ls *[!~])
 		fi
 	done;;
--f|--file)
+-f|--file|-s|--saveconf)
 	if [ -z "$2" ]
 	then	help
 	elif [ -r "$2" ]
-	then	settheme "$2"
+	then
+		settheme "$2"
+		if $saveconf
+		then	conftheme "$2"
+		fi
 	else	echo cannot read theme file
 	fi;;
 -q|--query)
