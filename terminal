@@ -31,7 +31,7 @@ terminaltype () {
 case "$BASH" in
 ?*)	# try simplified query as suggested by Brian Inglis:
 	# https://github.com/mintty/mintty/issues/776#issuecomment-475761566
-	read -s -dc -p $'\E[>c' da
+	read -s -dc -p $'\E[>c' da < /dev/tty
 	da=${da##$'\E'[>}
 	set - ${da//;/ }
 	;;
