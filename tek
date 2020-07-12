@@ -1,0 +1,71 @@
+#! /bin/sh
+
+case "$@" in
+-h|--help)
+	echo "Usage: $0 [-] [CMD PARAMS | FILES]"
+	echo "Run shell or command, or display files in Tektronix 4014 mode."
+	echo "Set up or adjust variables PS1, TERM, GNUTERM."
+	echo "Resize mintty terminal window to 780x1024 pixels unless disabled."
+	echo
+	echo Arguments:
+	echo "  -  do not resize window to Tek small resolution and aspect ratio"
+	exit;;
+-)	scale=false; shift;;
+*)	scale=true;;
+esac
+
+#############################################################################
+# configure TERM value to use
+
+TEKTERM=tek4014
+#TEKTERM=tek	# large/default font size
+
+#############################################################################
+# resize mintty
+
+if $scale
+then	case "$TERM_PROGRAM" in
+	mintty)	h=780
+		w=1024
+		echo -en "\e[4;${h};${w}t"
+		;;
+	esac
+fi
+
+#############################################################################
+# switch to Tek mode
+
+echo -en "\e[?38h"
+
+#############################################################################
+# set variables
+
+PS1=`echo "$PS1" | sed -e 's,\[[0-?]*[ -/]*[@-~],,g' -e 's,\][^]*.,,g' -e 's,\][^]*,,g'`
+export PS0="$PS1"
+
+TERM=$TEKTERM
+GNUTERM=tek40xx
+export TERM
+export GNUTERM
+
+#############################################################################
+# run shell (if no arguments) or command (if given) or display files
+
+case "$1" in
+"")	${SHELL:-sh};;
+*)	if type "$1" > /dev/null 2> /dev/null
+	then	cmd="$1"
+		shift
+		"$cmd" "$@"
+	else	cat "$@"
+	fi
+	read x;;
+esac
+
+#############################################################################
+# switch back to DEC mode
+
+echo -e "\e"
+
+#############################################################################
+# end
