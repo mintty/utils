@@ -194,7 +194,7 @@ showthemes() {
 }
 
 settheme() {
-	sed \
+	theme=$(sed \
 	    -e 's/^\(ForegroundColour\)[ 	]*=/10;/' \
 	    -e 's/^\(BackgroundColour\)[ 	]*=/11;/' \
 	    -e 's/^\(CursorColour\)[ 	]*=/12;/' \
@@ -216,7 +216,16 @@ settheme() {
 	    -e 's/^\(BoldWhite\)[ 	]*=/4;15;/' \
 	    -e 't ok' -e d -e ': ok' -e 's/[ 	]//g' \
 	    -e "s/^/]/" -e "s/$//" "$1" |
-	tr -d '\012'
+	tr -d '\012')
+	if [ -n "$TMUX" ]
+	then # double all Escape control characters, wrap with Ptmux escape sequence
+	    echo $theme | sed \
+	       -e 's///g' \
+	       -e 's/^/Ptmux;/' \
+	       -e 's/$/\\/'
+	else
+	    echo $theme
+	fi
 	#]4;A;colour	set ANSI colour A=0..15
 	#]10;colour	set foreground colour
 	#]11;colour	set background colour
