@@ -221,8 +221,7 @@ settheme() {
 	then # double all Escape control characters, wrap with Ptmux escape sequence
 	    echo $theme | sed \
 	       -e 's///g' \
-	       -e 's/^/Ptmux;/' \
-	       -e 's/$/\\/'
+	       -e 's/^/Ptmux;/'
 	else
 	    echo $theme
 	fi
