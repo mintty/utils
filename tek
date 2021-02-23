@@ -40,9 +40,6 @@ echo -en "\e[?38h"
 #############################################################################
 # set variables
 
-PS1=`echo "$PS1" | sed -e 's,\[[0-?]*[ -/]*[@-~],,g' -e 's,\][^]*.,,g' -e 's,\][^]*,,g'`
-export PS0="$PS1"
-
 TERM=$TEKTERM
 GNUTERM=tek40xx
 export TERM
@@ -66,6 +63,11 @@ esac
 # switch back to DEC mode
 
 echo -e "\e"
+
+#############################################################################
+# notify parent shell of changed window size
+
+kill -WINCH $PPID
 
 #############################################################################
 # end
