@@ -1,0 +1,63 @@
+#! /bin/sh
+
+#############################################################################
+# determine whether there is a remote ambiguous-width mismatch
+
+pre=
+post=
+
+ctype="${LC_ALL:-${LC_CTYPE:-$LANG}}"
+case "$ctype" in
+*@cjk*)	post="]701;$ctype"
+	ctype="${ctype%@*}"
+	if [ -n "$LC_ALL" ]
+	then	LC_ALL=$ctype
+	else	LC_CTYPE=$ctype
+	fi
+	pre="]701;$ctype"
+	;;
+esac
+case "$ctype" in
+ja_*.utf8|ja_*.UTF-8|ko_*.utf8|ko_*.UTF-8|zh_*.utf8|zh_*.UTF-8)
+	uver=`uname -r`
+	uver="${uver%[a-z](*}"
+	uver="${uver//./}"
+	if [ "$uver" -lt 320 ]
+	then
+		# if we have a CJK locale with UTF-8 encoding 
+		# and no explicit @cjk* modifier,
+		# tweak terminal locale to ambiguous-width narrow for remote system
+		pre="]701;$ctype@cjknarrow"
+		if [ -z "$post" ]
+		then	post="]701;$ctype"
+		fi
+	fi
+	;;
+esac
+
+#############################################################################
+# derive remote login program depending on script name
+
+basename="${0##*/}"
+case "$basename" in
+*rsh*)		remote=rsh;;
+*rlogin*)	remote=rlogin;;
+*rexec*)	remote=rexec;;
+*telnet*)	remote=telnet;;
+*ssh*)		remote=ssh;;
+*)		remote=${SHELL:-sh};;
+esac
+
+#############################################################################
+# switch terminal locale and call (remote) program
+#echo LC_ALL $LC_ALL
+#echo LC_CTYPE $LC_CTYPE
+#echo pre "${pre#*;}"
+#echo post "${post#*;}"
+
+echo -n "$pre"
+"$remote" "$@"
+echo -n "$post"
+
+#############################################################################
+# end
