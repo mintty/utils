@@ -1,6 +1,6 @@
 #! /bin/sh
 
-case "$@" in
+case "$1" in
 -h|--help)
 	echo "Usage: $0 [-] [CMD PARAMS | FILES]"
 	echo "Run shell or command, or display files in Tektronix 4014 mode."
