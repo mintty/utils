@@ -1,0 +1,73 @@
+#! /bin/sh
+
+s="@g#5 "
+f=3
+b=4
+ff=9
+bb=10
+interleave=true
+
+while	case "$1" in
+	-h)	cat <</EOH
+${0##*/} [OPTIONS]
+Colour scheme display, showing 16 ANSI colours foreground/background.
+
+  -s "demo"  use demo string
+  -b         separate bright sections
+  -r         use reverse display
+/EOH
+		exit;;
+	-s)	shift
+		s="$1"
+		true;;
+	-b)	interleave=false
+		true;;
+	-r)	f="7;4"
+		b=3
+		ff="7;10"
+		bb=9
+		true;;
+	*)	false;;
+	esac
+do	shift
+done
+
+if $interleave
+then
+	for fg in 0 1 2 3 4 5 6 7
+	do
+		echo -n "[$f${fg}m"
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$b${bg}m$s[$bb${bg}m$s"
+		done
+		echo "[m"
+		echo -n "[$ff${fg}m"
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$b${bg}m$s[$bb${bg}m$s"
+		done
+		echo "[m"
+	done
+else
+	for fg in 0 1 2 3 4 5 6 7
+	do
+		echo -n "[$f${fg}m"
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$b${bg}m$s"
+		done
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$bb${bg}m$s"
+		done
+		echo "[m"
+	done
+	for fg in 0 1 2 3 4 5 6 7
+	do
+		echo -n "[$ff${fg}m"
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$b${bg}m$s"
+		done
+		for bg in 0 1 2 3 4 5 6 7
+		do	echo -n "[$bb${bg}m$s"
+		done
+		echo "[m"
+	done
+fi
