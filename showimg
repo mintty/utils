@@ -1,12 +1,18 @@
 #! /bin/sh
 
+size=$(stty size)
+lines=${size% *}
+columns=${size#* }
+
+# echo lines: $lines columns: $columns
+
 width=
 height=
 pAR=
 while case "$1" in
-	-w|-width)	width=";width=$2"
+	-w|-width)	width="$2"
 			shift; shift;;
-	-h|-height)	height=";height=$2"
+	-h|-height)	height="$2"
 			shift; shift;;
 	-fit)		pAR=";preserveAspectRatio=0"
 			shift;;
@@ -35,6 +41,38 @@ for img in "$@"
 do
   if [ -r "$img" ]
   then
+  	# echo height: $height width: $width
+
+	# Ensure that the given sizes do not exceed the source image
+	img_width=$(file "$img" | sed -e 's/.*, *\([0-9]*\) *x *\([0-9]*\).*/\1/')
+	if [ -n "$width" ] && [ "$width" -gt "$img_width" ]; then
+		width=$img_width
+	fi
+	img_height=$(file "$img" | sed -e 's/.*, *\([0-9]*\) *x *\([0-9]*\).*/\2/')
+	if [ -n "$height" ] && [ "$height" -gt "$img_height" ]; then
+		height=$img_height
+	fi
+	if [ -z "$width" ]; then
+		width=$(file "$img" | sed -e 's/.*, *\([0-9]*\) *x *\([0-9]*\).*/\1/')
+	fi
+	if [ -z "$height" ]; then
+		height=$(file "$img" | sed -e 's/.*, *\([0-9]*\) *x *\([0-9]*\).*/\2/')
+	fi
+	# echo height: $height width: $width
+
+	# Ensure that the sizes do not exceed the size of the console
+	if [ "$width" -gt "$columns" ]; then
+		width=$columns
+	fi
+	if [ "$height" -gt "$lines" ]; then
+		height=$lines
+	fi
+	# echo height: $height width: $width
+
+	# Format
+	width=";width=${width}"
+	height=";height=${height}"
+
     #eval $(file "$img" | sed -e 's/.*, *\([0-9]*\) *x *\([0-9]*\).*/width=\1px; height=\2px/')
     $echo -en "\e]1337;File=name=$(echo "$img" | base64 -w 0);inline=1"
     $echo -en "${width}${height}${pAR}:$(base64 -w 0 "$img")\a"
